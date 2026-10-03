@@ -1,0 +1,39 @@
+# ==========================================
+# 1. Môi trường ảo (Virtual Environment)
+# (Tuyệt đối không push các thư viện nặng lên Git)
+# ==========================================
+venv/
+env/
+.venv/
+
+# ==========================================
+# 2. Cấu hình bảo mật (Security - QUAN TRỌNG NHẤT)
+# (Không bao giờ push thông tin DB, mật khẩu, API keys)
+# ==========================================
+.env
+
+# ==========================================
+# 3. File sinh ra trong quá trình chạy Test & Report
+# ==========================================
+.pytest_cache/
+allure-results/
+allure-report/
+reports/
+test-results/
+error_logs.txt
+*.log
+
+# ==========================================
+# 4. File rác hệ thống và Database cục bộ
+# ==========================================
+*.db
+*.sqlite3
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==========================================
+# 5. Cấu hình Editor/IDE (VS Code, PyCharm)
+# ==========================================
+.vscode/
+.idea/
