@@ -18,3 +18,8 @@ def db_client():
 
     client.disconnect()
 
+@pytest.fixture(scope="session")
+def api_client():
+    api_client = BaseAPIClient(base_url="https://jsonplaceholder.typicode.com")
+    return api_client
+
