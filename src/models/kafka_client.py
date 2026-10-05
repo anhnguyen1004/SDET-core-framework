@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
-from models.data_models import User
-from config.settings import settings
+from src.models.data_models import User
+from src.config.settings import settings
 
 logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(message)s')
 

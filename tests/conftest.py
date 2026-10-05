@@ -1,7 +1,7 @@
 import pytest
-from api.base_client import BaseAPIClient
-from models.db_client import PostgresDBClient
-from config.settings import settings
+from src.api.base_client import BaseAPIClient
+from src.models.db_client import PostgresDBClient
+from src.config.settings import settings
 
 @pytest.fixture(scope="session")
 def db_client():
@@ -15,8 +15,15 @@ def db_client():
 
     client.connect()
     yield client
-
     client.disconnect()
+
+@pytest.fixture(scope="function")
+def cleanup_user_test(db_client):
+    user_ids = []
+    yield user_ids
+    if user_ids:
+        ids_str = ",".join(map(str, user_ids))
+        db_client.execute_query(f"DELETE FROM nguoi_dung where id in ({ids_str})")
 
 @pytest.fixture(scope="session")
 def api_client():
