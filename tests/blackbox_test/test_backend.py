@@ -16,7 +16,7 @@ def test_verify_post_in_db(db_client):
     result = db_client.execute_query("SELECT * FROM tin_dang LIMIT 5")
     assert len(result) >0, "Post not found!"
 
-def test_user_register(db_client, cleanup_user_test):
+def test_user_register(requests_mock, db_client, cleanup_user_test):
     payload = {
         "ho_ten": "User Test",
         "email": "test@example.com",
