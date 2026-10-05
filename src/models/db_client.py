@@ -12,6 +12,8 @@ class PostgresDBClient:
         self.connection = None
 
     def connect(self):
+        if self.connection and not self.connection.closed:
+            return
         logging.info(f"Dang ket noi database toi {self.db_name} tai {self.host}...")
         try:
             self.connection = psycopg2.connect(
@@ -35,17 +37,16 @@ class PostgresDBClient:
     def execute_query(self, query: str):
         if not self.connection:
             raise Exception("Chua mo ket noi db")
+        cursor = None
         try:
-            cursor =self.connection.cursor()
+            cursor = self.connection.cursor()
             cursor.execute(query)
 
             if query.strip().upper().startswith("SELECT"):
                 result = cursor.fetchall()
-                cursor.close()
                 return result
             
             self.connection.commit()
-            cursor.close()
             return None
         except Exception as e:
             logging.error(f"Loi truy van database: {e}")

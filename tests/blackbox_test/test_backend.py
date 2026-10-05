@@ -26,10 +26,12 @@ def test_user_register(requests_mock, db_client, cleanup_user_test):
         "trang_thai": "HOAT_DONG"
     }
     headers = {"Content-Type" : "application/json"}
- 
-    user_client = UserRegister()
+    hash_password = hash(payload["mat_khau"])
+    user_client = UserRegister(db_client)
     user_client.register(payload, headers)
     result = user_client.search_user(payload["ho_ten"])
     cleanup_user_test.append(result[0]["id"])
     assert result is not None
     assert result[0]["email"] == payload["email"]
+    assert result[0]["mat_khau_hash"] == str(hash_password)
+ 

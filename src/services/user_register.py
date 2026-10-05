@@ -28,18 +28,13 @@ class UserRegister:
             trang_thai = payload["trang_thai"]
         )
         try:
-            query = f"INSERT INTO public.nguoi_dung(ho_ten, email, mat_khau_hash, so_dien_thoai, vai_tro, trang_thai) VALUES('{user.ho_ten}', '{user.email}', '$2b$12$QchccORt3LztJ2OdNVoHC.EQpGYfBNl008MZoOdP7YLIBg6ky9ePC', '{user.so_dien_thoai}', '{user.vai_tro}', 'HOAT_DONG');"
-            self.db_client.connect()
+            query = f"INSERT INTO public.nguoi_dung(ho_ten, email, mat_khau_hash, so_dien_thoai, vai_tro, trang_thai) VALUES('{user.ho_ten}', '{user.email}', '{hash(user.mat_khau)}', '{user.so_dien_thoai}', '{user.vai_tro}', 'HOAT_DONG');"
             result = self.db_client.execute_query(query)
         except Exception as e:
             raise ValueError(f"Error while registering user: {str(e)}")
-        finally:
-            self.db_client.disconnect()
         return result
     
     def search_user(self, ho_ten: str):
         query = f"SELECT * FROM public.nguoi_dung WHERE ho_ten = '{ho_ten}'"
-        self.db_client.connect()
         result = self.db_client.execute_query(query)
-        self.db_client.disconnect()
         return result
