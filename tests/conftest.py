@@ -2,6 +2,7 @@ import pytest
 from src.api.base_client import BaseAPIClient
 from src.models.db_client import PostgresDBClient
 from src.config.settings import settings
+from src.models.kafka_client import KafkaClient
 
 @pytest.fixture(scope="session")
 def db_client():
@@ -64,3 +65,8 @@ def api_client():
     api_client = BaseAPIClient(base_url="https://jsonplaceholder.typicode.com")
     return api_client
 
+@pytest.fixture(scope="session")
+def kafka_client():
+    kafka_client = KafkaClient()
+    yield kafka_client
+    kafka_client.close()
