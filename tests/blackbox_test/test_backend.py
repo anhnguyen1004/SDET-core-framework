@@ -26,7 +26,7 @@ def test_user_register(requests_mock, db_client, cleanup_user_test):
     assert result[0]["email"] == payload["email"]
     assert result[0]["mat_khau_hash"] == str(hash_password)
  
-def test_logic_tin_yeu_thich_khi_tin_dang_soft_delete(api_client, db_client, setup_favorite_post_test, cleanup_user_test, cleanup_favorite_post_test):
+def test_logic_tin_yeu_thich_khi_tin_dang_soft_delete(api_client, db_client, setup_user_and_post_test, cleanup_user_test, cleanup_favorite_post_test):
     # Create User B
     user_b_id= 99999
     query = f"""
@@ -39,14 +39,14 @@ def test_logic_tin_yeu_thich_khi_tin_dang_soft_delete(api_client, db_client, set
     # User B add favorite post (post is created by user A in setup)
     payload = {
         "nguoi_dung_id": user_b_id,
-        "tin_dang_id": setup_favorite_post_test["post_id"]
+        "tin_dang_id": setup_user_and_post_test["post_id"]
     }
     favor_post_client = FavoritePostService(db_client)
     add_response = favor_post_client.add_favorite_post(payload)
 
     # User A soft delete post
-    db_client.execute_query(f"UPDATE tin_dang SET is_deleted = True WHERE id = {setup_favorite_post_test['post_id']}")
-    favorite_post = db_client.execute_query(f"SELECT * FROM tin_yeu_thich WHERE nguoi_dung_id = {user_b_id} AND tin_dang_id = {setup_favorite_post_test['post_id']}")
+    db_client.execute_query(f"UPDATE tin_dang SET is_deleted = True WHERE id = {setup_user_and_post_test['post_id']}")
+    favorite_post = db_client.execute_query(f"SELECT * FROM tin_yeu_thich WHERE nguoi_dung_id = {user_b_id} AND tin_dang_id = {setup_user_and_post_test['post_id']}")
     cleanup_favorite_post_test.append(favorite_post[0]["id"])
 
     get_response = favor_post_client.get_favorite_post(user_b_id)

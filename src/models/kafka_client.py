@@ -31,15 +31,18 @@ class KafkaClient:
             raise KafkaException(f"Loi consume msg {message.error()}")
         logging.info(f"Raw message: {message.value()}")
         raw_response = message.value().decode('utf-8')
-        return json.loads(raw_response)
+        message_key = message.key().decode('utf-8') if message.key() is not None else None
+        logging.info(f"Start processing message with key {message_key}")
+        return [json.loads(raw_response), message_key]
 
     def close(self):
         self.consumer.close()
         self.producer.close()
 
     def produce(self, topic:str, data:dict):
-        logging.info(f"Sending message to topic {topic}")
+        key = str(uuid.uuid4())
+        logging.info(f"Sending message to topic {topic} with key {key}")
         payload_bytes = json.dumps(data).encode('utf-8')
-        self.producer.produce(topic, value=payload_bytes)
+        self.producer.produce(topic, key = key, value=payload_bytes)
         self.producer.flush()
         logging.info(f"Message is sent to topic {topic}")

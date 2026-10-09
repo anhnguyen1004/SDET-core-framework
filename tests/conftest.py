@@ -32,9 +32,23 @@ def cleanup_favorite_post_test(db_client):
     if favorite_post_ids:
         ids_str = ",".join(map(str, favorite_post_ids))
         db_client.execute_query(f"DELETE FROM tin_yeu_thich where id in ({ids_str})")
+        
+@pytest.fixture(scope="function")
+def setup_user_test(db_client):
+    test_user_id = 99991
+    hash_password = hash("12345")
+    try:
+        query_insert_user = f"""
+            INSERT INTO nguoi_dung (id, ho_ten, email, mat_khau_hash, so_dien_thoai, vai_tro, trang_thai) 
+            VALUES ({test_user_id}, 'SDET Test User', 'sdet_{test_user_id}@abc.com', '{hash_password}', '0912345678', 'NGUOI_DUNG', 'HOAT_DONG')
+        """
+        db_client.execute_query(query_insert_user)
+        yield test_user_id
+    finally:
+        db_client.execute_query(f"DELETE FROM nguoi_dung where id = {test_user_id}")
 
 @pytest.fixture(scope="function")   
-def setup_favorite_post_test(db_client):
+def setup_user_and_post_test(db_client):
     test_user_id = 99991
     test_tin_dang_id = 88881
     hash_password = hash("12345")
@@ -59,6 +73,22 @@ def setup_favorite_post_test(db_client):
     finally:
         db_client.execute_query(f"DELETE FROM tin_dang where id = {test_tin_dang_id}")
         db_client.execute_query(f"DELETE FROM nguoi_dung where id = {test_user_id}")
+
+@pytest.fixture(scope="function")
+def cleanup_report(db_client, setup_user_and_post_test):
+    nguoi_bao_cao_id = setup_user_and_post_test["user_id"]
+    tin_dang_id = setup_user_and_post_test["post_id"]
+    yield
+    db_client.execute_query(f"DELETE FROM public.bao_cao WHERE nguoi_bao_cao_id={nguoi_bao_cao_id} AND tin_dang_id={tin_dang_id};")
+
+@pytest.fixture(scope="function")
+def purge_topic(kafka_client):
+    def _purge(topic: str):
+        kafka_client.consumer.subscribe([topic])
+        # Drain all existing messages until no more arrive within 2s
+        while kafka_client.consumer.poll(timeout=2.0) is not None:
+            pass
+    return _purge
 
 @pytest.fixture(scope="session")
 def api_client():
