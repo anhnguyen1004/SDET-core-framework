@@ -1,6 +1,8 @@
 -- DROP SCHEMA public;
 
-CREATE SCHEMA public AUTHORIZATION pg_database_owner;
+-- Schema public already created by PostgreSQL by default.
+-- Granting usage to the app user.
+GRANT ALL ON SCHEMA public TO app;
 
 -- DROP SEQUENCE public.anh_thu_vien_id_seq;
 
