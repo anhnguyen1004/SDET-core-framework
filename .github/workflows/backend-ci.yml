@@ -41,6 +41,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        python -m playwright install --with-deps
 
     # 5. Chạy Test và sinh dữ liệu Allure Report
     - name: Run Pytest

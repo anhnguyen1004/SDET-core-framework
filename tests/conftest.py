@@ -1,4 +1,5 @@
 import pytest
+import psycopg2
 from src.api.base_client import BaseAPIClient
 from src.models.db_client import PostgresDBClient
 from src.config.settings import settings
@@ -20,9 +21,9 @@ def db_client():
             client.disconnect()
             return
         except psycopg2.OperationalError as e:
-            print(f"[Cảnh báo] Lỗi kết nối DB lần {attempt + 1}: {e}")
+            print(f"[WARNING] Lỗi kết nối DB lần {attempt + 1}: {e}")
             time.sleep(2)
-    raise Exception("Kết nối DB failed hoàn toàn!")
+    raise Exception("[FAILED] Kết nối DB thất bại!")
 
 @pytest.fixture(scope="function")
 def cleanup_user_test(db_client):
