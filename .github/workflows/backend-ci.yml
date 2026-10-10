@@ -3,7 +3,7 @@ name: SDET Backend Automation CI
 # Kích hoạt pipeline mỗi khi có code push lên nhánh main hoặc tạo Pull Request
 on:
   push:
-    branches: [ "main", "master", "cicd-allure" ]
+    branches: [ "main", "master", "cicd-bot-alert" ]
   pull_request:
     branches: [ "main", "master"]
 
@@ -124,3 +124,33 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
+
+      # 4. Bắn thông báo về Discord
+      - name: 🔔 Send Discord Notification
+        if: always() # Luôn chạy dù pipeline xanh hay đỏ
+        run: |
+          # 1. Bắt trạng thái của Job Test để định dạng màu sắc (Discord dùng mã màu Decimal)
+          if [ "${{ needs.run-tests.result }}" == "success" ]; then
+            COLOR=3066993 # Xanh lá
+            STATUS="✅ PASSED"
+          else
+            COLOR=16711680 # Đỏ
+            STATUS="❌ FAILED"
+          fi
+
+          # 2. Gửi lệnh cURL với Payload chuẩn của Discord Webhook
+          curl -H "Content-Type: application/json" -d "{
+            \"username\": \"SDET Bot\",
+            \"avatar_url\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\",
+            \"embeds\": [{
+              \"title\": \"Trạng thái Test Backend: ${STATUS}\",
+              \"url\": \"https://anhnguyen1004.github.io/SDET-core-framework/\",
+              \"description\": \"Luồng CI/CD vừa hoàn tất. Bấm vào tiêu đề để xem báo cáo Allure chi tiết.\",
+              \"color\": ${COLOR},
+              \"fields\": [
+                { \"name\": \"📦 Nhánh\", \"value\": \"${{ github.ref_name }}\", \"inline\": true },
+                { \"name\": \"👤 Kích hoạt bởi\", \"value\": \"${{ github.actor }}\", \"inline\": true },
+                { \"name\": \"🔍 Commit\", \"value\": \"${{ github.sha }}\", \"inline\": false }
+              ]
+            }]
+          }" ${{ secrets.DISCORD_WEBHOOK_URL }}
