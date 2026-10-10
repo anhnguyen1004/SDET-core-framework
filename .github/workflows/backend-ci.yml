@@ -53,7 +53,7 @@ jobs:
         python -m playwright install --with-deps
 
     - name: Cache Playwright browers
-      uses: action/cache@v4
+      uses: actions/cache@v4
       id: playwright-cache
       with:
         path: ~/.cache/ms-playwright
