@@ -3,13 +3,18 @@ name: SDET Backend Automation CI
 # Kích hoạt pipeline mỗi khi có code push lên nhánh main hoặc tạo Pull Request
 on:
   push:
-    branches: [ "main", "master", "cicd-cache" ]
+    branches: [ "main", "master", "cicd-allure" ]
   pull_request:
     branches: [ "main", "master"]
 
 jobs:
   run-tests:
     runs-on: ubuntu-latest # Sử dụng máy chủ Ubuntu do GitHub cấp miễn phí
+
+    permissions:
+      contents: write 
+      pages: write
+      id-token: write
 
     strategy:
       fail-fast: false
@@ -86,3 +91,21 @@ jobs:
         name: allure-results
         path: allure-results
         retention-days: 7
+
+    # 1. Biến cục data JSON/XML thành trang HTML giao diện đẹp (giữ lại cả lịch sử trend)
+    - name: 📊 Generate Allure Report
+      uses: simple-elf/allure-report-action@master
+      if: always()
+      with:
+        allure_results: allure-results
+        allure_history: allure-history
+        keep_reports: 20 # Lưu lại biểu đồ trend của 20 lần chạy gần nhất
+
+    # 2. Bê nguyên thư mục HTML đó ném lên GitHub Pages (Nhánh gh-pages)
+    - name: 🚀 Deploy Allure Report to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: always()
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: allure-history
