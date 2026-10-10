@@ -27,7 +27,10 @@ jobs:
           fi
           sleep 1
         done
-        docker ps
+        echo "--- DANH SÁCH CONTAINER ĐANG CHẠY ---"
+        docker ps -a 
+        echo "--- LOG CỦA POSTGRESQL ---"
+        docker logs qa-postgres-db
 
     # 3. Cài đặt môi trường Python
     - name: Set up Python 3.11
@@ -49,8 +52,11 @@ jobs:
         pytest tests/ --alluredir=allure-results
       env:
         # Bạn có thể ghi đè biến môi trường ở đây nếu cần thiết
-        DB_HOST: localhost 
         KAFKA_BROKER: localhost:9092
+        DB_HOST: localhost
+        DB_USER: app
+        DB_PASSWORD: app
+        DB_NAME: app
 
     # 6. Thu thập kết quả Test (Kể cả khi Test Fail vẫn phải chạy bước này)
     - name: Upload Allure Results
