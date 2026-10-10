@@ -98,9 +98,9 @@ jobs:
     if: always() # Vẫn chạy kể cả khi Test Fail
     
     steps:
-      - name: 📥 Get code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
-        
+
       # 1. Tải tất cả kết quả của máy 3.10 và 3.11 về gom chung vào 1 thư mục
       - name: 📥 Download all Allure results
         uses: actions/download-artifact@v4
@@ -109,6 +109,9 @@ jobs:
           path: allure-results
           merge-multiple: true 
 
+      - name: 🔍 Inspect downloaded files (Debug)
+        run: ls -la allure-results/
+        
       # 2. Sinh giao diện HTML
       - name: 📊 Generate Allure Report
         uses: simple-elf/allure-report-action@master
