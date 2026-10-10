@@ -1,7 +1,7 @@
-import requests
-import pytest
-import psycopg2
 from unittest.mock import patch
+
+import pytest
+
 from src.services.user_register import UserRegister
 
 pytestmark = pytest.mark.component

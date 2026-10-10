@@ -1,12 +1,11 @@
-import logging
 import json
+import logging
 import uuid
 from dataclasses import dataclass
-from src.models.data_models import User
-from src.config.settings import settings
+
 from confluent_kafka import Consumer, KafkaException, Producer
 
-logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 @dataclass
 class KafkaClient:
@@ -21,18 +20,18 @@ class KafkaClient:
         
     def consume(self, topic: str, timeout: float = 10.0):
         self.consumer.subscribe([topic])
-        logging.info(f"Listening to topic {topic}")
+        logger.info(f"Listening to topic {topic}")
 
         message = self.consumer.poll(timeout=timeout)
         if message is None:
-            logging.warning("[Kafka] Timeout! Không có message.")
+            logger.warning("[Kafka] Timeout! Không có message.")
             return None
         if message.error():
             raise KafkaException(f"Loi consume msg {message.error()}")
-        logging.info(f"Raw message: {message.value()}")
+        logger.info(f"Raw message: {message.value()}")
         raw_response = message.value().decode('utf-8')
         message_key = message.key().decode('utf-8') if message.key() is not None else None
-        logging.info(f"Start processing message with key {message_key}")
+        logger.info(f"Start processing message with key {message_key}")
         return [json.loads(raw_response), message_key]
 
     def close(self):
@@ -41,8 +40,8 @@ class KafkaClient:
 
     def produce(self, topic:str, data:dict):
         key = str(uuid.uuid4())
-        logging.info(f"Sending message to topic {topic} with key {key}")
+        logger.info(f"Sending message to topic {topic} with key {key}")
         payload_bytes = json.dumps(data).encode('utf-8')
         self.producer.produce(topic, key = key, value=payload_bytes)
         self.producer.flush()
-        logging.info(f"Message is sent to topic {topic}")
+        logger.info(f"Message is sent to topic {topic}")

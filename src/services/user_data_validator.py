@@ -1,13 +1,16 @@
 import json
 
+from src.exceptions.exceptions import DataProcessingError, FileReadError, FileSaveError
+
+
 def get_raw_user(filename: str):
     try:
         with open(f"data/{filename}", "r") as file:
             users = json.load(file)    
     except FileNotFoundError as e:
-        raise Exception(f"File not found. Details: {e}")
-    except Exception as e:
-        raise Exception(f"Cannot read file. Details: {e}")
+        raise FileReadError(f"File not found. Details: {e}")
+    except (OSError, json.JSONDecodeError) as e:
+        raise FileReadError(f"Cannot read file. Details: {e}")
     else:
         return users
 
@@ -22,8 +25,8 @@ def filter_user(users: list):
             else:
                 invalid_user.append(user)
 
-    except Exception as e:
-        raise Exception(f"filter_user has an error. Details: {e}")
+    except (TypeError, AttributeError) as e:
+        raise DataProcessingError(f"filter_user has an error. Details: {e}")
     else:
         return filtered_user, invalid_user
 
@@ -32,9 +35,9 @@ def save_users(filename: str, users: list):
         with open(f"data/{filename}", "w") as file:
             json.dump(users, file, indent=4)
     except FileNotFoundError as e:
-        raise Exception(f"File not found. Details: {e}")
-    except Exception as e:
-        raise Exception(f"Cannot save file. Details: {e}")
+        raise FileSaveError(f"File not found. Details: {e}")
+    except (OSError, TypeError) as e:
+        raise FileSaveError(f"Cannot save file. Details: {e}")
     else:
         return True
 
@@ -46,6 +49,6 @@ if __name__ == "__main__":
         if invalid_user:
             save_users("invalid_users.json", invalid_user)
 
-    except Exception as e:
-        with open(f"data/error_logs.txt", "a") as file:
+    except Exception as e:  # noqa: BLE001
+        with open("data/error_logs.txt", "a") as file:
             file.write(f"An error occurred: {e}\n")

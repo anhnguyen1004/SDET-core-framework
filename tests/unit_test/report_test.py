@@ -1,6 +1,8 @@
-import pytest
 import time
 from datetime import datetime
+
+import pytest
+
 from src.services.report_service import ReportService
 
 pytestmark = pytest.mark.unit
@@ -17,13 +19,13 @@ def test_consume_report_notification(kafka_client):
     }
 
     kafka_client.produce(topic=topic, data=payload)
-    report_notification, key = kafka_client.consume(topic=topic)
+    report_notification, _key = kafka_client.consume(topic=topic)
     assert report_notification is not None
     assert report_notification.get("nguoi_bao_cao_id") == payload.get("nguoi_bao_cao_id")
 
 def test_consume_duplicate_report(kafka_client, db_client, purge_topic, setup_user_and_post_test, cleanup_report):
     purge_topic(topic=topic)
-    report_service = ReportService(db_client, kafka_client)
+    _report_service = ReportService(db_client, kafka_client)
     nguoi_bao_cao_id= setup_user_and_post_test["user_id"]
     tin_dang_id = setup_user_and_post_test["post_id"]
 
@@ -57,7 +59,7 @@ def test_consume_duplicate_report(kafka_client, db_client, purge_topic, setup_us
 
     kafka_client.produce(topic=topic, data=payload_duplicate)
 
-    result1, key1 = kafka_client.consume(topic=topic)
-    result2, key2 = kafka_client.consume(topic=topic)
+    _result1, key1 = kafka_client.consume(topic=topic)
+    _result2, key2 = kafka_client.consume(topic=topic)
     
     assert key1 != key2

@@ -1,6 +1,7 @@
 import pytest
-from src.pages.login_page import LoginPage
 from playwright.sync_api import expect
+
+from src.pages.login_page import LoginPage
 
 pytestmark = pytest.mark.ui
 

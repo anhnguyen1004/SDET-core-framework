@@ -1,11 +1,14 @@
-import pytest
-import psycopg2
 import time
 
+import psycopg2
+import pytest
+
 from src.api.base_client import BaseAPIClient
-from src.models.db_client import PostgresDBClient
 from src.config.settings import settings
+from src.exceptions.exceptions import DatabaseClientError
+from src.models.db_client import PostgresDBClient
 from src.models.kafka_client import KafkaClient
+
 
 @pytest.fixture(scope="session")
 def db_client():
@@ -26,7 +29,7 @@ def db_client():
             print(f"[WARNING] Lỗi kết nối DB lần {attempt + 1}: {e}")
             time.sleep(2)
     if not connection:
-        raise Exception("[FAILED] Kết nối DB thất bại!")
+        raise DatabaseClientError("[FAILED] Kết nối DB thất bại!")
     try:
         yield client
     finally:
