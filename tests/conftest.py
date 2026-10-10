@@ -21,6 +21,7 @@ def db_client():
         try:
             client.connect()
             connection = True
+            break
         except psycopg2.OperationalError as e:
             print(f"[WARNING] Lỗi kết nối DB lần {attempt + 1}: {e}")
             time.sleep(2)
