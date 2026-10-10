@@ -16,16 +16,20 @@ def db_client():
         password = settings.DB_PASSWORD,
         port = 5432
     )
+    connection = False
     for attempt in range(10):
         try:
             client.connect()
-            yield client
-            client.disconnect()
-            return
+            connection = True
         except psycopg2.OperationalError as e:
             print(f"[WARNING] Lỗi kết nối DB lần {attempt + 1}: {e}")
             time.sleep(2)
-    raise Exception("[FAILED] Kết nối DB thất bại!")
+    if not connection:
+        raise Exception("[FAILED] Kết nối DB thất bại!")
+    try:
+        yield client
+    finally:
+        client.disconnect()
 
 @pytest.fixture(scope="function")
 def cleanup_user_test(db_client):
