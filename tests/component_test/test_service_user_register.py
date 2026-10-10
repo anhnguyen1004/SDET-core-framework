@@ -1,7 +1,8 @@
-import requests
-import pytest
-import psycopg2
 from unittest.mock import patch
+
+import pytest
+
+from src.exceptions.exceptions import DatabaseClientError
 from src.services.user_register import UserRegister
 
 pytestmark = pytest.mark.component
@@ -17,7 +18,7 @@ def test_user_register_return_error_when_db_failure(requests_mock, db_client, cl
     }
     headers = {"Content-Type" : "application/json"}
 
-    err = Exception("Database connection failed")
+    err = DatabaseClientError("Database connection failed")
     with patch.object(db_client, "execute_query", side_effect=err):
         user_client = UserRegister(db_client=db_client)
         with pytest.raises(ValueError) as ex:

@@ -1,5 +1,3 @@
-from playwright.sync_api import expect
-
 class LoginPage:
     def __init__(self, url: str, username: str, password: str):
         self.url = url

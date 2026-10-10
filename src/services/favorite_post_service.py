@@ -1,4 +1,6 @@
 from fastapi import APIRouter, status
+
+from src.exceptions.exceptions import DatabaseClientError
 from src.models.db_client import PostgresDBClient
 
 router = APIRouter()
@@ -10,7 +12,7 @@ class FavoritePostService:
     @router.post("/api/post/add-favorite-post", status_code=status.HTTP_201_CREATED)
     def add_favorite_post(self, payload: dict):
         if self.db_client is None:
-            raise Exception("Database client is not initialized")
+            raise DatabaseClientError("Database client is not initialized")
         user_id = payload.get("nguoi_dung_id")
         post_id = payload.get("tin_dang_id")
 

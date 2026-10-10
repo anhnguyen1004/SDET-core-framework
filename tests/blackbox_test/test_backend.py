@@ -1,7 +1,5 @@
 import pytest
-import logging
-import json
-import requests
+
 from src.services.favorite_post_service import FavoritePostService
 from src.services.user_register import UserRegister
 
