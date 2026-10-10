@@ -19,14 +19,9 @@ jobs:
     # 2. Bật các hệ thống vệ tinh (DB & Kafka) bằng file Docker Compose bạn đã viết
     - name: 🐳 Spin up Infrastructure (PostgreSQL & Kafka)
       run: |
-        docker compose up -d
-        for i in {1..45}; do
-          if docker exec qa-postgres-db pg_isready -h 127.0.0.1 -U postgres > /dev/null 2>&1; then
-            echo "Spin up db is done!"
-            break
-          fi
-          sleep 1
-        done
+        docker compose up -d --wait
+        echo "--- DB is healthy, waiting for init_schema.sql to finish... ---"
+        sleep 5
         echo "--- DANH SÁCH CONTAINER ĐANG CHẠY ---"
         docker ps -a 
         echo "--- LOG CỦA POSTGRESQL ---"
