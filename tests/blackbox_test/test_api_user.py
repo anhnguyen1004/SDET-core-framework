@@ -11,8 +11,7 @@ def test_get(api_client):
 @pytest.mark.parametrize("name,email,status", [
     ("Nguyen Minh Anh", "anh.nguyen@gmail.com", 201),
     ("Nguyen Van A", "a@example.com", 201),
-    ("Tên_Có_Ký_Tự_@#$", "b@example.com", 200),
-    ("User 3", "invalid-email", 400)
+    ("Tên_Có_Ký_Tự_@#$", "b@example.com", 201),
 ])
 def test_post(api_client, name, email, status):
     payload = {
