@@ -21,3 +21,19 @@ services:
       - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
       - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
       - CLUSTER_ID=SDETAutomationCluster
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: qa-postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=app
+      - POSTGRES_DB=app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bds_test_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
