@@ -21,7 +21,7 @@ jobs:
       run: |
         docker compose up -d
         for i in {1..45}; do
-          if docker exec qa-postgres-db pg_isready -U postgres > /dev/null 2>&1; then
+          if docker exec qa-postgres-db pg_isready -h 127.0.0.1 -U postgres > /dev/null 2>&1; then
             echo "Spin up db is done!"
             break
           fi

@@ -13,9 +13,16 @@ def db_client():
         password = settings.DB_PASSWORD,
         port = 5432
     )
-    client.connect()
-    yield client
-    client.disconnect()
+    for attempt in range(10):
+        try:
+            client.connect()
+            yield client
+            client.disconnect()
+            return
+        except psycopg2.OperationalError as e:
+            print(f"[Cảnh báo] Lỗi kết nối DB lần {attempt + 1}: {e}")
+            time.sleep(2)
+    raise Exception("Kết nối DB failed hoàn toàn!")
 
 @pytest.fixture(scope="function")
 def cleanup_user_test(db_client):
