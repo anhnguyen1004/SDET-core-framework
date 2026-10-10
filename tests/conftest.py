@@ -1,5 +1,7 @@
 import pytest
 import psycopg2
+import time
+
 from src.api.base_client import BaseAPIClient
 from src.models.db_client import PostgresDBClient
 from src.config.settings import settings
