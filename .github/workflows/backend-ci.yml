@@ -3,7 +3,7 @@ name: SDET Backend Automation CI
 # Kích hoạt pipeline mỗi khi có code push lên nhánh main hoặc tạo Pull Request
 on:
   push:
-    branches: [ "main", "master", "cicd-bot-alert" ]
+    branches: [ "main", "master", "cicd-docker" ]
   pull_request:
     branches: [ "main", "master"]
 
@@ -76,7 +76,6 @@ jobs:
       run: |
         pytest tests/ --alluredir=allure-results
       env:
-        # Bạn có thể ghi đè biến môi trường ở đây nếu cần thiết
         KAFKA_BROKER: localhost:9092
         DB_HOST: localhost
         DB_USER: app
@@ -154,3 +153,28 @@ jobs:
               ]
             }]
           }" ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    needs: run-tests
+    permission:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry 
+        uses: actions/login@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: 🐳 Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # 2 nhãn: 'latest' (mới nhất), mã commit để dễ rollback
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/sdet-core-framework:latest
+            ghcr.io/${{ github.repository_owner }}/sdet-core-framework:${{ github.sha }}
