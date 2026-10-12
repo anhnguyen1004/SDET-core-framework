@@ -5,7 +5,7 @@ import pytest
 from src.exceptions.exceptions import DatabaseClientError
 from src.services.user_register import UserRegister
 
-pytestmark = pytest.mark.component
+pytestmark = pytest.mark.smoke
 
 def test_user_register_return_error_when_db_failure(requests_mock, db_client, cleanup_user_test):
     payload = {
