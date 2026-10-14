@@ -2,7 +2,6 @@ import os
 
 import pytest
 import requests
-
 from playwright.sync_api import expect
 
 from src.pages.login_page import LoginPage
