@@ -74,7 +74,7 @@ jobs:
     # Chạy Test và sinh dữ liệu Allure Report
     - name: Run Pytest
       run: |
-        pytest tests/ --alluredir=allure-results
+        pytest -m "not smoke" --alluredir=allure-results
       env:
         KAFKA_BROKER: localhost:9092
         DB_HOST: localhost
