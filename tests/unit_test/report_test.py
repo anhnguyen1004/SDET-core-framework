@@ -7,8 +7,7 @@ from src.services.report_service import ReportService
 pytestmark = pytest.mark.component
 topic = "sdet.bao-cao.created"
 
-def test_consume_report_notification(kafka_client, purge_topic):
-    purge_topic(topic=topic)  # subscribes + drains any stale messages
+def test_consume_report_notification(kafka_client):
     payload = {
         "nguoi_bao_cao_id": 99991,
         "tin_dang_id": 88881,

@@ -126,7 +126,6 @@ def purge_topic(kafka_client):
         if kafka_client._subscribed_topic != topic:
             kafka_client.consumer.subscribe([topic])
             kafka_client._subscribed_topic = topic
-            kafka_client._wait_for_assignment()  # wait until partitions assigned
         # Drain all existing messages until no more arrive within 0.5s
         while kafka_client.consumer.poll(timeout=0.5) is not None:
             pass
