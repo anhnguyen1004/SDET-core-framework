@@ -42,22 +42,6 @@ def db_client():
         cursor.close()
         client.disconnect()
 
-# @pytest.fixture(scope="function")
-# def cleanup_user_test(db_client):
-#     user_ids = []
-#     yield user_ids
-#     if user_ids:
-#         ids_str = ",".join(map(str, user_ids))
-#         db_client.execute_query(f"DELETE FROM nguoi_dung where id in ({ids_str})")
-
-# @pytest.fixture(scope="function")
-# def cleanup_favorite_post_test(db_client):
-#     favorite_post_ids = []
-#     yield favorite_post_ids
-#     if favorite_post_ids:
-#         ids_str = ",".join(map(str, favorite_post_ids))
-#         db_client.execute_query(f"DELETE FROM tin_yeu_thich where id in ({ids_str})")
-
 @pytest.fixture(scope="function")
 def setup_loai_bat_dong_san(db_client):
     loai_bds_id = 9999
@@ -135,12 +119,6 @@ def setup_user_and_post_test(db_client, setup_loai_bat_dong_san, setup_phuong_xa
         "user_id": test_user_id,
         "post_id": test_tin_dang_id
     }
-
-@pytest.fixture(scope="function")
-def cleanup_report(db_client, setup_user_and_post_test):
-    nguoi_bao_cao_id = setup_user_and_post_test["user_id"]
-    tin_dang_id = setup_user_and_post_test["post_id"]
-    yield
 
 @pytest.fixture(scope="function")
 def purge_topic(kafka_client):
