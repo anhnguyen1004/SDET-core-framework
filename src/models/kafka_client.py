@@ -17,18 +17,15 @@ class KafkaClient:
         }
         self.producer = Producer(self.conf)
         self.consumer = Consumer(self.conf)
-        self._subscribed_topic: str | None = None
 
-    def consume(self, topic: str, timeout: float = 5.0):
-        if self._subscribed_topic != topic:
-            self.consumer.subscribe([topic])
-            self._subscribed_topic = topic
+    def consume(self, topic: str, timeout: float = 10.0):
+        self.consumer.subscribe([topic])
         logger.info(f"Listening to topic {topic}")
 
         message = self.consumer.poll(timeout=timeout)
         if message is None:
             logger.warning("[Kafka] Timeout! Không có message.")
-            return None, None
+            return None
         if message.error():
             raise KafkaException(f"Loi consume msg {message.error()}")
         logger.info(f"Raw message: {message.value()}")

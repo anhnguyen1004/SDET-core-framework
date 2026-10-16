@@ -123,11 +123,9 @@ def setup_user_and_post_test(db_client, setup_loai_bat_dong_san, setup_phuong_xa
 @pytest.fixture(scope="function")
 def purge_topic(kafka_client):
     def _purge(topic: str):
-        if kafka_client._subscribed_topic != topic:
-            kafka_client.consumer.subscribe([topic])
-            kafka_client._subscribed_topic = topic
-        # Drain all existing messages until no more arrive within 0.5s
-        while kafka_client.consumer.poll(timeout=0.5) is not None:
+        kafka_client.consumer.subscribe([topic])
+        # Drain all existing messages until no more arrive within 2s
+        while kafka_client.consumer.poll(timeout=2.0) is not None:
             pass
     return _purge
 
