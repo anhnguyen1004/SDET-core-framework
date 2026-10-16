@@ -1,2 +1,0 @@
-WARNING  src.models.kafka_client:kafka_client.py:29 [Kafka] Timed out waiting for partition assignment
-WARNING  src.models.kafka_client:kafka_client.py:42 [Kafka] Timeout! Không có message.
