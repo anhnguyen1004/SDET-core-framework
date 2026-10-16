@@ -8,13 +8,14 @@ from src.exceptions.exceptions import DatabaseClientError
 logger = logging.getLogger(__name__)
 
 class PostgresDBClient:
-    def __init__(self, host, db_name, user, password, port = 5432):
+    def __init__(self, host, db_name, user, password, port=5432, auto_commit=True):
         self.host = host
         self.db_name = db_name
         self.user = user
         self.password = password
         self.port = port
         self.connection = None
+        self.auto_commit = auto_commit
 
     def connect(self):
         if self.connection and not self.connection.closed:
@@ -51,7 +52,8 @@ class PostgresDBClient:
                 result = cursor.fetchall()
                 return result
             
-            self.connection.commit()
+            if self.auto_commit:
+                self.connection.commit()
             return None
         except psycopg2.Error as e:
             logger.error(f"Loi truy van database: {e}")

@@ -3,7 +3,7 @@ name: SDET Backend Automation CI
 # Kích hoạt pipeline mỗi khi có code push lên nhánh main hoặc tạo Pull Request
 on:
   push:
-    branches: [ "main", "master", "cicd-docker" ]
+    branches: [ "main", "master", "feature/**" ]
   pull_request:
     branches: [ "main", "master"]
 

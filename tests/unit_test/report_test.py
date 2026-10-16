@@ -1,14 +1,14 @@
-import time
 from datetime import datetime
 
 import pytest
 
 from src.services.report_service import ReportService
 
-pytestmark = pytest.mark.unit
+pytestmark = pytest.mark.component
 topic = "sdet.bao-cao.created"
 
-def test_consume_report_notification(kafka_client):
+def test_consume_report_notification(kafka_client, purge_topic):
+    purge_topic(topic=topic)  # subscribes + drains any stale messages
     payload = {
         "nguoi_bao_cao_id": 99991,
         "tin_dang_id": 88881,
@@ -54,9 +54,6 @@ def test_consume_duplicate_report(kafka_client, db_client, purge_topic, setup_us
     }
 
     kafka_client.produce(topic=topic, data=payload)
-
-    time.sleep(2)
-
     kafka_client.produce(topic=topic, data=payload_duplicate)
 
     _result1, key1 = kafka_client.consume(topic=topic)
