@@ -1,1 +1,0 @@
-WARNING  src.models.kafka_client:kafka_client.py:30 [Kafka] Timeout! Không có message.
