@@ -17,7 +17,7 @@ class KafkaClient:
         }
         self.producer = Producer(self.conf)
         self.consumer = Consumer(self.conf)
-        
+
     def consume(self, topic: str, timeout: float = 10.0):
         self.consumer.subscribe([topic])
         logger.info(f"Listening to topic {topic}")

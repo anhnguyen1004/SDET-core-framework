@@ -7,7 +7,7 @@ from src.services.user_register import UserRegister
 
 pytestmark = pytest.mark.component
 
-def test_user_register_return_error_when_db_failure(requests_mock, db_client, cleanup_user_test):
+def test_user_register_return_error_when_db_failure(requests_mock, db_client):
     payload = {
         "ho_ten": "User Test",
         "email": "test@example.com",
