@@ -1,0 +1,1 @@
+ERROR    src.models.kafka_client:kafka_client.py:48 Failed to parse message: Invalid JSON: line 1 column 1 (char 0)

@@ -1,0 +1,1 @@
+ERROR    src.services.report_service:report_service.py:47 Failed to process report: DB execution error, sending to DLQ
