@@ -146,13 +146,19 @@ def kafka_client():
     kafka_client.close()
 
 @pytest.fixture(scope="function")
-def unique_topic():
-    topic_name = f"sdet.bao-cao.created.{uuid.uuid4().hex[:8]}"
-    yield topic_name
-    try:
-        admin_client = AdminClient({"bootstrap.servers": settings.KAFKA_BROKER})
-        fs = admin_client.delete_topics([topic_name])
-        for f in fs.values():
-            f.result(timeout=5)
-    except Exception as e:  # noqa: BLE001
-        print(f"Warning: Không thể xóa topic {topic_name}: {e}")
+def create_topic():
+    created_topics=[]
+    def _create(base_name:str) -> str:
+        topic_name = f"{base_name}.{uuid.uuid4().hex[:8]}"
+        created_topics.append(topic_name)
+        return topic_name
+    yield _create
+
+    if created_topics:
+        try:
+            admin_client = AdminClient({"bootstrap.servers": settings.KAFKA_BROKER})
+            fs = admin_client.delete_topics(created_topics)
+            for f in fs.values():
+                f.result(timeout=5)
+        except Exception as e:  # noqa: BLE001
+            print(f"Warning: Không thể xóa topic {created_topics}: {e}")

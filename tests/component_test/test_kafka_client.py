@@ -13,17 +13,19 @@ pytestmark = pytest.mark.unit
 topic = "sdet.bao-cao.created"
 DLQ_TOPIC = settings.DLQ_TOPIC
 
-def test_produce_dql_when_fail_to_parse_msg(kafka_client, purge_topic, unique_topic):
-    purge_topic(topic=DLQ_TOPIC)
+def test_produce_dql_when_fail_to_parse_msg(kafka_client, purge_topic, create_topic):
+    test_topic = create_topic(topic)
+    purge_topic(DLQ_TOPIC)
+
     payload = {
         "payload": {}
     }
     key = str(uuid.uuid4())
-    kafka_client.produce(topic=unique_topic, data=payload, key=key)
+    kafka_client.produce(topic=test_topic, data=payload, key=key)
 
     err = json.JSONDecodeError("Invalid JSON", "doc", 0)
     with patch.object(json, "loads", side_effect=err), pytest.raises(KafkaException):
-        kafka_client.consume(topic=unique_topic)
+        kafka_client.consume(topic=test_topic)
 
     msg, dlq_key = kafka_client.consume(topic=DLQ_TOPIC)
     assert msg is not None
