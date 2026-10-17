@@ -125,7 +125,7 @@ def purge_topic(kafka_client):
     def _purge(topic: str):
         kafka_client.consumer.subscribe([topic])
         # Drain all existing messages until no more arrive within 2s
-        while kafka_client.consumer.poll(timeout=2.0) is not None:
+        while kafka_client.consumer.poll(timeout=0.5) is not None:
             pass
     return _purge
 

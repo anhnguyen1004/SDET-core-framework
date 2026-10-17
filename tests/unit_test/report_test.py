@@ -7,7 +7,7 @@ from src.services.report_service import ReportService
 pytestmark = pytest.mark.component
 topic = "sdet.bao-cao.created"
 
-def test_consume_report_notification(kafka_client):
+def test_consume_report_notification(kafka_client, purge_topic):
     payload = {
         "nguoi_bao_cao_id": 99991,
         "tin_dang_id": 88881,
@@ -16,7 +16,7 @@ def test_consume_report_notification(kafka_client):
         "ngay_bao_cao": str(datetime.now()),
         "trang_thai": "chưa xử lý"
     }
-
+    purge_topic(topic=topic)
     kafka_client.produce(topic=topic, data=payload)
     report_notification, _key = kafka_client.consume(topic=topic)
     assert report_notification is not None
