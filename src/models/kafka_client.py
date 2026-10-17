@@ -6,7 +6,10 @@ from dataclasses import dataclass
 
 from confluent_kafka import Consumer, KafkaException, Producer
 
+from src.config.settings import settings
+
 logger = logging.getLogger(__name__)
+DLQ_TOPIC = settings.DLQ_TOPIC
 
 @dataclass
 class KafkaClient:
@@ -29,6 +32,7 @@ class KafkaClient:
             if message is None:
                 continue
             if message.error():
+                self.produce(DLQ_TOPIC, data=message.value().decode('utf-8'), key=message.key().decode('utf-8'))
                 raise KafkaException(f"Loi consume msg {message.error()}")
             break
         if message is None:
@@ -38,7 +42,15 @@ class KafkaClient:
         raw_response = message.value().decode('utf-8')
         message_key = message.key().decode('utf-8') if message.key() is not None else None
         logger.info(f"Start processing message with key {message_key}")
-        return [json.loads(raw_response), message_key]
+        try:
+            parsed_data = json.loads(raw_response)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse message: {e}")
+            self.produce(DLQ_TOPIC, data={"corrupted_payload": raw_response, "error": str(e)}, key=message_key)
+            raise KafkaException(f"Failed to parse message: {e}")
+        finally:
+            self.consumer.commit(message)
+        return [parsed_data, message_key]
 
     def close(self):
         self.consumer.close()

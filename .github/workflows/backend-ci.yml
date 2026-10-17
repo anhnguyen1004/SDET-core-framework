@@ -81,6 +81,7 @@ jobs:
         DB_USER: app
         DB_PASSWORD: app
         DB_NAME: app
+        DLQ_TOPIC: dead-letter-queue
 
     # Thu thập kết quả Test (Kể cả khi Test Fail vẫn phải chạy bước này)
     - name: Upload Allure Results

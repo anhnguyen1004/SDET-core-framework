@@ -1,7 +1,9 @@
 import time
+import uuid
 
 import psycopg2
 import pytest
+from confluent_kafka.admin import AdminClient
 
 from src.api.base_client import BaseAPIClient
 from src.config.settings import settings
@@ -124,8 +126,11 @@ def setup_user_and_post_test(db_client, setup_loai_bat_dong_san, setup_phuong_xa
 def purge_topic(kafka_client):
     def _purge(topic: str):
         kafka_client.consumer.subscribe([topic])
-        # Drain all existing messages until no more arrive within 2s
-        while kafka_client.consumer.poll(timeout=0.5) is not None:
+        while kafka_client.consumer.poll(timeout=3.0) is not None:
+            pass
+        try:
+            kafka_client.consumer.commit()
+        except Exception:  # noqa: BLE001, S110
             pass
     return _purge
 
@@ -139,3 +144,21 @@ def kafka_client():
     kafka_client = KafkaClient()
     yield kafka_client
     kafka_client.close()
+
+@pytest.fixture(scope="function")
+def create_topic():
+    created_topics=[]
+    def _create(base_name:str) -> str:
+        topic_name = f"{base_name}.{uuid.uuid4().hex[:8]}"
+        created_topics.append(topic_name)
+        return topic_name
+    yield _create
+
+    if created_topics:
+        try:
+            admin_client = AdminClient({"bootstrap.servers": settings.KAFKA_BROKER})
+            fs = admin_client.delete_topics(created_topics)
+            for f in fs.values():
+                f.result(timeout=5)
+        except Exception as e:  # noqa: BLE001
+            print(f"Warning: Không thể xóa topic {created_topics}: {e}")
