@@ -19,7 +19,6 @@ def test_user_register(requests_mock, db_client):
     user_client = UserRegister(db_client)
     user_client.register(payload, headers)
     result = user_client.search_user(payload["ho_ten"])
-    # cleanup_user_test.append(result[0]["id"])
     assert result is not None
     assert result[0]["email"] == payload["email"]
     assert result[0]["mat_khau_hash"] == str(hash_password)
@@ -32,7 +31,6 @@ def test_logic_tin_yeu_thich_khi_tin_dang_soft_delete(api_client, db_client, set
             VALUES ({user_b_id}, 'SDET Test User', 'sdet_{user_b_id}@abc.com', '{hash("12345")}', '0912345678', 'NGUOI_DUNG', 'HOAT_DONG')
         """
     db_client.execute_query(query)
-    # cleanup_user_test.append(user_b_id)
 
     # User B add favorite post (post is created by user A in setup)
     payload = {
@@ -45,9 +43,8 @@ def test_logic_tin_yeu_thich_khi_tin_dang_soft_delete(api_client, db_client, set
     # User A soft delete post
     db_client.execute_query(f"UPDATE tin_dang SET is_deleted = True WHERE id = {setup_user_and_post_test['post_id']}")
     favorite_post = db_client.execute_query(f"SELECT * FROM tin_yeu_thich WHERE nguoi_dung_id = {user_b_id} AND tin_dang_id = {setup_user_and_post_test['post_id']}")
-    # cleanup_favorite_post_test.append(favorite_post[0]["id"])
-
     get_response = favor_post_client.get_favorite_post(user_b_id)
+
     assert add_response["status"] == "success"
     assert favorite_post is not None
     assert len(get_response) == 0

@@ -1,6 +1,9 @@
+import logging
+
 from src.models.db_client import PostgresDBClient
 from src.models.kafka_client import KafkaClient
 
+logger = logging.getLogger(__name__)
 
 class ReportService:
     def __init__(self, db_client:PostgresDBClient, kafka_client:KafkaClient):
@@ -8,7 +11,7 @@ class ReportService:
         self.kafka_client = kafka_client
 
     def save_report(self, topic: str):
-        msg = self.kafka_client.consume(topic=topic)
+        msg, _key = self.kafka_client.consume(topic=topic)
         tin_dang_id = msg.get("tin_dang_id")
         nguoi_bao_cao_id = msg.get("nguoi_bao_cao_id")
         ly_do = msg.get("ly_do")
@@ -18,6 +21,11 @@ class ReportService:
         ngay_bao_cao = msg.get("ngay_bao_cao")
         ngay_xu_ly = msg.get("ngay_xu_ly")
         ghi_chu_xu_ly = msg.get("ghi_chu_xu_ly")
+
+        existing_report = self.get_report(tin_dang_id=tin_dang_id, nguoi_bao_cao_id=nguoi_bao_cao_id)
+        if existing_report:
+            logger.warning(f"Duplicate report for post {tin_dang_id} and user {nguoi_bao_cao_id}") 
+            return None
 
         query = f"""
             INSERT INTO public.bao_cao

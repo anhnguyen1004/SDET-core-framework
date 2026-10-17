@@ -1,6 +1,6 @@
 import json
-import time
 import logging
+import time
 import uuid
 from dataclasses import dataclass
 
@@ -44,10 +44,12 @@ class KafkaClient:
         self.consumer.close()
         self.producer.close()
 
-    def produce(self, topic:str, data:dict):
-        key = str(uuid.uuid4())
+    def produce(self, topic:str, data:dict, key: str | None = None):
+        if key is None:
+            key = str(uuid.uuid4())
         logger.info(f"Sending message to topic {topic} with key {key}")
         payload_bytes = json.dumps(data).encode('utf-8')
         self.producer.produce(topic, key = key, value=payload_bytes)
         self.producer.flush()
-        logger.info(f"Message is sent to topic {topic}")
+        logger.info(f"Message is sent to topic {topic} with key {key}")
+        return topic, key
