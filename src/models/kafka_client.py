@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 import uuid
 from dataclasses import dataclass
 
@@ -21,13 +22,18 @@ class KafkaClient:
     def consume(self, topic: str, timeout: float = 10.0):
         self.consumer.subscribe([topic])
         logger.info(f"Listening to topic {topic}")
-
-        message = self.consumer.poll(timeout=timeout)
+        start_time = time.time()
+        message = None
+        while time.time() - start_time < timeout:
+            message = self.consumer.poll(timeout=1.0)
+            if message is None:
+                continue
+            if message.error():
+                raise KafkaException(f"Loi consume msg {message.error()}")
+            break
         if message is None:
             logger.warning("[Kafka] Timeout! Không có message.")
             return None
-        if message.error():
-            raise KafkaException(f"Loi consume msg {message.error()}")
         logger.info(f"Raw message: {message.value()}")
         raw_response = message.value().decode('utf-8')
         message_key = message.key().decode('utf-8') if message.key() is not None else None
@@ -38,10 +44,12 @@ class KafkaClient:
         self.consumer.close()
         self.producer.close()
 
-    def produce(self, topic:str, data:dict):
-        key = str(uuid.uuid4())
+    def produce(self, topic:str, data:dict, key: str | None = None):
+        if key is None:
+            key = str(uuid.uuid4())
         logger.info(f"Sending message to topic {topic} with key {key}")
         payload_bytes = json.dumps(data).encode('utf-8')
         self.producer.produce(topic, key = key, value=payload_bytes)
         self.producer.flush()
-        logger.info(f"Message is sent to topic {topic}")
+        logger.info(f"Message is sent to topic {topic} with key {key}")
+        return topic, key
